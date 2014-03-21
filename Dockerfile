@@ -11,4 +11,15 @@ run	git clone https://code.google.com/p/netopeer/
 run	apt-get install -y libevent-dev openssh-server
 
 run	cd /libnetconf && ./configure  --with-nacm-recovery-uid=0 && make && make install
-run	cd /netopeer/server && ./configure --sysconfdir=/etc && make && make install
+run	cd /netopeer/server-sl && ./configure && make && make install
+run	ln -s /usr/local/lib/libnetconf.so.0 /lib
+
+RUN	mkdir /var/run/sshd
+RUN	echo "root\nroot" > /password 
+RUN	cat /password | passwd
+
+RUN	echo 'Port 830' >> /etc/ssh/sshd_config
+RUN	echo 'Subsystem netconf /usr/local/bin/netopeer-server-sl' >> /etc/ssh/sshd_config
+
+CMD	/usr/sbin/sshd -D
+EXPOSE 830
